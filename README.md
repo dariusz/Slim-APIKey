@@ -26,7 +26,9 @@ You can control a couple of things:
 
 * `valid_keys` - The array() of valid API keys.  The array *values* are used, the array keys are ignored.  The type has to match.
 * `parameter_name` - The name of the parameter (the default is "api_key").  If this value is empty, users will get a 500 Internal Server error.
-* `content_type` - The Content-Type of the response.  Valid options are:  application/json, application/problem+json, text/plain  (the default is "text/plain")
+* `content_type` - The Content-Type of the response, which includes a humane error message.  Valid options are:  application/json, application/problem+json, text/plain, none  (the default is "text/plain")
+
+Setting `content_type` to "none" prevents Slim-APIKey from responding with an error message.
 
 In the example below, the api_key parameter is called APPKEY, and the content type is application/json.
 
