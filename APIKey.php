@@ -32,9 +32,11 @@
 * 
 *         application/json
 *         application/problem+json
+*         none
 *         text/plain 
 * 
-*     ... with text/plain being the default.
+*     ... with text/plain being the default.  Suppress any content from
+*     being returned by using 'none' as the Content-Type.
 *
 * MIT LICENSE
 *
@@ -65,9 +67,13 @@ class APIKey extends \Slim\Middleware
 	/**
 	* Constructor
 	*
-	* @param string $username The HTTP Authentication username
-	* @param string $password The HTTP Authentication password
-	* @param string $realm The HTTP Authentication realm
+	* @param string $valid_keys An array of value API key values.
+	* @param string $parameter_name Name of the API key parameter
+	* @param string $content_type Content-Type of the response. One of:
+	*     text/plain
+	*     application/json
+	*     application/problem+json
+	*     none
 	*/
 
 	public function __construct($valid_keys = array(), $parameter_name = 'api_key', $content_type = 'text/plain')
@@ -77,6 +83,14 @@ class APIKey extends \Slim\Middleware
 		$this->content_type = $content_type;
 	}
 	
+	/*
+	 * Call
+	 * 
+	 * This method will check the API key parameter against the array
+	 * of valid values. If there's a match, the next middleware is
+	 * called. Otherwise a 403 Forbidden response and a brief
+	 * description is returned to the client.
+	 */
 	public function call() {
 		
 		$incoming_key = $this->app->request->params($this->parameter_name);
@@ -104,7 +118,14 @@ class APIKey extends \Slim\Middleware
 		}
 	}	
 	
-	protected function set_response($response) {
+	/*
+	 * Set_Response
+	 * 
+	 * Sets the response based on the preferred Content-Type.
+	 * If the preferred Content-Type is 'none', the default Content-Type
+	 * is used and no message is returned.
+	 */
+	private function set_response($response) {
 
 		$this->app->response->status($response['status']);
 
@@ -116,6 +137,8 @@ class APIKey extends \Slim\Middleware
 			case "application/json":
 				$this->app->response->header("Content-Type", "application/json");
 				$this->app->response->body(json_encode($response['detail']));
+				break;
+			case "none":
 				break;
 			case "text/plain":
 			default:
